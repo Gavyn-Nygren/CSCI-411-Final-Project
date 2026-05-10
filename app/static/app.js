@@ -156,6 +156,12 @@ function formatClock(date) {
   return `${hour}:${minutes}${suffix}`;
 }
 
+function formatPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length !== 10) return value || "";
+  return `(${digits.slice(0, 3)})-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 function activateTab(tabId) {
   document.querySelectorAll(".tabs button").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === tabId));
   document.querySelectorAll(".tab-page").forEach((page) => page.classList.toggle("active", page.id === tabId));
@@ -268,7 +274,7 @@ async function loadCustomers(search = "") {
       makeItem(
         [
           customer.name,
-          `${customer.email} | ${customer.phone}`,
+          `${customer.email} | ${formatPhone(customer.phone)}`,
           `${customer.address}`,
           (customer.services || []).map((service) => `${service.service_type} | ${service.frequency}`).join("; "),
           customer.notes,
@@ -332,6 +338,7 @@ async function loadServices() {
           `${service.service_type} on ${service.job_date}`,
           `${timeRange} | ${service.customer_name} | $${service.cost} | ${service.duration_minutes} minutes`,
           service.customer_address,
+          `${formatPhone(service.customer_phone)} | ${service.customer_email || ""}`,
           service.notes,
         ],
         actions,
@@ -463,6 +470,10 @@ document.querySelector("#customer-cancel-edit").addEventListener("click", () => 
 
 document.querySelector("#add-customer-service").addEventListener("click", () => {
   addCustomerServiceRow();
+});
+
+document.querySelector("#customer-form [name='phone']").addEventListener("blur", (event) => {
+  event.target.value = formatPhone(event.target.value);
 });
 
 document.querySelector("#service-form [name='customer_id']").addEventListener("change", () => {

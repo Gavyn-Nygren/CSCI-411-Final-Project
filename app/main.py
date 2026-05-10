@@ -399,6 +399,8 @@ def list_services(customer_id: int | None = None, user: dict = Depends(require_u
                 sr.*,
                 c.name AS customer_name,
                 c.address AS customer_address,
+                c.email AS customer_email,
+                c.phone AS customer_phone,
                 EXISTS (
                     SELECT 1
                     FROM financial_entries fe

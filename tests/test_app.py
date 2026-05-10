@@ -94,7 +94,7 @@ def test_customer_validation_and_sql_injection_string(tmp_path, monkeypatch):
         json={
             "name": "Bad<script>",
             "email": "bad@example.com",
-            "phone": "555-1212",
+            "phone": "555-555-1212",
             "address": "1 Main St",
             "service_type": "Cleaning",
             "frequency": "Weekly",
@@ -108,7 +108,7 @@ def test_customer_validation_and_sql_injection_string(tmp_path, monkeypatch):
         json={
             "name": "Alice Smith",
             "email": "alice@example.com",
-            "phone": "555-1212",
+            "phone": "555-555-1212",
             "address": "1 Main St",
             "service_type": "Cleaning",
             "frequency": "Weekly",
@@ -116,6 +116,7 @@ def test_customer_validation_and_sql_injection_string(tmp_path, monkeypatch):
         },
     )
     assert good_customer.status_code == 200
+    assert good_customer.json()["phone"] == "(555)-555-1212"
 
     listed = client.get("/api/customers", params={"search": "Alice"}).json()
     assert len(listed["items"]) == 1
@@ -133,7 +134,7 @@ def test_can_create_and_list_many_customers(tmp_path, monkeypatch):
             json={
                 "name": name,
                 "email": f"customer{index}@example.com",
-                "phone": f"555-120{index}",
+                "phone": f"555-555-120{index}",
                 "address": f"{index} Main St",
                 "service_type": "Cleaning",
                 "frequency": "Weekly",
@@ -155,7 +156,7 @@ def test_service_financial_summary_and_contract_upload(tmp_path, monkeypatch):
         json={
             "name": "Bob Jones",
             "email": "bob@example.com",
-            "phone": "555-2323",
+            "phone": "555-555-2323",
             "address": "2 Main St",
             "service_type": "Move-out",
             "frequency": "Once",
@@ -179,6 +180,8 @@ def test_service_financial_summary_and_contract_upload(tmp_path, monkeypatch):
     service_list = client.get("/api/services").json()["items"]
     assert service_list[0]["customer_name"] == "Bob Jones"
     assert service_list[0]["customer_address"] == "2 Main St"
+    assert service_list[0]["customer_email"] == "bob@example.com"
+    assert service_list[0]["customer_phone"] == "(555)-555-2323"
 
     financial = client.post(
         "/api/financials",
@@ -234,7 +237,7 @@ def test_service_type_must_match_customer_schedule(tmp_path, monkeypatch):
         json={
             "name": "Jane Doe",
             "email": "jane@example.com",
-            "phone": "555-3434",
+            "phone": "555-555-3434",
             "address": "3 Main St",
             "service_type": "Scrub",
             "frequency": "Monthly",
@@ -280,7 +283,7 @@ def test_contract_can_be_viewed_in_app(tmp_path, monkeypatch):
         json={
             "name": "Text Viewer",
             "email": "viewer@example.com",
-            "phone": "555-9090",
+            "phone": "555-555-9090",
             "address": "10 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -308,7 +311,7 @@ def test_can_delete_contract(tmp_path, monkeypatch):
         json={
             "name": "Contract Delete",
             "email": "contractdelete@example.com",
-            "phone": "555-9191",
+            "phone": "555-555-9191",
             "address": "11 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -337,7 +340,7 @@ def test_service_date_cannot_be_before_today(tmp_path, monkeypatch):
         json={
             "name": "Lena Lane",
             "email": "lena@example.com",
-            "phone": "555-4040",
+            "phone": "555-555-4040",
             "address": "8 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -369,7 +372,7 @@ def test_customer_can_have_multiple_scheduled_services_and_be_deleted(tmp_path, 
         json={
             "name": "Morgan Miller",
             "email": "morgan@example.com",
-            "phone": "555-4545",
+            "phone": "555-555-4545",
             "address": "4 Main St",
             "services": [
                 {"service_type": "Scrub", "frequency": "Weekly"},
@@ -425,7 +428,7 @@ def test_services_include_time_and_sort_current_date_forward(tmp_path, monkeypat
         json={
             "name": "Nora North",
             "email": "nora@example.com",
-            "phone": "555-5656",
+            "phone": "555-555-5656",
             "address": "5 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -470,7 +473,7 @@ def test_can_delete_service_record(tmp_path, monkeypatch):
         json={
             "name": "Paula Park",
             "email": "paula@example.com",
-            "phone": "555-6767",
+            "phone": "555-555-6767",
             "address": "6 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -505,7 +508,7 @@ def test_service_records_over_one_month_old_are_deleted(tmp_path, monkeypatch):
         json={
             "name": "Old Record",
             "email": "old@example.com",
-            "phone": "555-7070",
+            "phone": "555-555-7070",
             "address": "9 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -536,7 +539,7 @@ def test_can_edit_service_record(tmp_path, monkeypatch):
         json={
             "name": "Quinn Queen",
             "email": "quinn@example.com",
-            "phone": "555-7878",
+            "phone": "555-555-7878",
             "address": "7 Main St",
             "services": [
                 {"service_type": "Scrub", "frequency": "Weekly"},
@@ -602,7 +605,7 @@ def test_complete_service_creates_financial_entry_once(tmp_path, monkeypatch):
         json={
             "name": "Completed Customer",
             "email": "completed@example.com",
-            "phone": "555-8080",
+            "phone": "555-555-8080",
             "address": "12 Main St",
             "service_type": "Scrub",
             "frequency": "Weekly",
@@ -651,3 +654,4 @@ def test_logout_invalidates_session(tmp_path, monkeypatch):
     assert client.get("/api/me").status_code == 200
     assert client.post("/api/logout").status_code == 200
     assert client.get("/api/me").status_code == 401
+

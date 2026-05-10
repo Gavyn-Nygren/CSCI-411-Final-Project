@@ -39,6 +39,15 @@ def clean_notes(value: str | None) -> str:
     return clean_string(value, "Notes", 0, 1000, TEXT_RE)
 
 
+def clean_phone(value: str) -> str:
+    if not isinstance(value, str):
+        bad("Phone must be a string.")
+    digits = re.sub(r"\D", "", value)
+    if len(digits) != 10:
+        bad("Phone must include a 3-digit area code and 7-digit number.")
+    return f"({digits[:3]})-{digits[3:6]}-{digits[6:]}"
+
+
 def clean_customer_services(data: dict) -> list[dict]:
     raw_services = data.get("services")
     if raw_services is None:
@@ -73,7 +82,7 @@ def clean_customer_payload(data: dict) -> dict:
     return {
         "name": clean_string(data.get("name", ""), "Name", 1, 100, NAME_RE),
         "email": clean_string(data.get("email", ""), "Email", 3, 255, EMAIL_RE),
-        "phone": clean_string(data.get("phone", ""), "Phone", 7, 20, PHONE_RE),
+        "phone": clean_phone(data.get("phone", "")),
         "address": clean_string(data.get("address", ""), "Address", 1, 255, ADDRESS_RE),
         "service_type": services[0]["service_type"],
         "frequency": services[0]["frequency"],

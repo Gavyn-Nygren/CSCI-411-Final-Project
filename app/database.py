@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from pathlib import Path
 
@@ -120,6 +121,22 @@ def init_db() -> None:
         columns = {row["name"] for row in db.execute("PRAGMA table_info(service_records)").fetchall()}
         if "service_time" not in columns:
             db.execute("ALTER TABLE service_records ADD COLUMN service_time TEXT NOT NULL DEFAULT '09:00'")
+        normalize_customer_phones(db)
+
+
+def format_phone(value: str) -> str:
+    digits = re.sub(r"\D", "", value or "")
+    if len(digits) != 10:
+        return value
+    return f"({digits[:3]})-{digits[3:6]}-{digits[6:]}"
+
+
+def normalize_customer_phones(db: sqlite3.Connection) -> None:
+    rows = db.execute("SELECT id, phone FROM customers").fetchall()
+    for row in rows:
+        formatted = format_phone(row["phone"])
+        if formatted != row["phone"]:
+            db.execute("UPDATE customers SET phone = ? WHERE id = ?", (formatted, row["id"]))
 
 
 def row_to_dict(row: sqlite3.Row | None) -> dict | None:
