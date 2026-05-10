@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CleanOps Secure Web App</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section id="auth-view" class="auth">
+        <div>
+          <p class="eyebrow">CleanOps</p>
+          <h1 id="auth-title">Secure business operations</h1>
+          <p class="lede">Manage customers, jobs, contracts, and financial records from one protected workspace.</p>
+        </div>
+        <form id="auth-form" class="panel">
+          <label>
+            Username
+            <input name="username" autocomplete="username" minlength="3" maxlength="50" required>
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required>
+          </label>
+          <button id="auth-submit" type="submit">Log in</button>
+          <button id="auth-alt" class="secondary" type="button">Create account</button>
+          <p id="auth-message" class="message" role="status"></p>
+        </form>
+      </section>
+
+      <section id="app-view" class="hidden">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">CleanOps</p>
+            <h1>Secure Operations Dashboard</h1>
+          </div>
+          <div class="session">
+            <span id="current-user"></span>
+            <button id="logout-btn" type="button">Log out</button>
+          </div>
+        </header>
+
+        <nav class="tabs" aria-label="Dashboard sections">
+          <button class="active" data-tab="customers" type="button">Customers</button>
+          <button data-tab="services" type="button">Services</button>
+          <button data-tab="contracts" type="button">Contracts</button>
+          <button data-tab="financials" type="button">Financials</button>
+        </nav>
+
+        <section id="customers" class="tab-page active">
+          <div class="grid two">
+            <form id="customer-form" class="panel">
+              <div class="form-head">
+                <h2 id="customer-form-title">Add Customer</h2>
+                <button id="customer-cancel-edit" class="secondary hidden" type="button">New Customer</button>
+              </div>
+              <input type="hidden" name="id">
+              <label>Name<input name="name" maxlength="100" required></label>
+              <label>Email<input name="email" type="email" maxlength="255" required></label>
+              <label>Phone<input name="phone" maxlength="20" required></label>
+              <label>Address<input name="address" maxlength="255" required></label>
+              <div class="schedule-head">
+                <h3>Scheduled Services</h3>
+                <button id="add-customer-service" class="secondary" type="button">Add Service Type</button>
+              </div>
+              <div id="customer-services" class="service-schedule"></div>
+              <label>Notes<textarea name="notes" maxlength="1000"></textarea></label>
+              <button type="submit">Save Customer</button>
+            </form>
+            <div class="panel">
+              <div class="list-head">
+                <div>
+                  <h2>Customer List</h2>
+                  <p id="customer-count" class="meta">0 customers</p>
+                </div>
+                <input id="customer-search" placeholder="Search">
+              </div>
+              <div id="customer-list" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="services" class="tab-page">
+          <div class="grid two">
+            <form id="service-form" class="panel">
+              <div class="form-head">
+                <h2 id="service-form-title">Add Service</h2>
+                <button id="service-cancel-edit" class="secondary hidden" type="button">New Service</button>
+              </div>
+              <input type="hidden" name="id">
+              <label>Customer<select name="customer_id" required></select></label>
+              <label>Service Type<select name="service_type" required></select></label>
+              <label>Job Date<input name="job_date" type="date" required></label>
+              <label>Start Time<input name="service_time" type="time" required></label>
+              <label>Cost<input name="cost" type="number" min="0" max="100000" step="0.01" required></label>
+              <label>Duration Minutes<input name="duration_minutes" type="number" min="1" max="1440" required></label>
+              <label>Notes<textarea name="notes" maxlength="1000"></textarea></label>
+              <button id="service-submit" type="submit">Add Service</button>
+            </form>
+            <div class="panel">
+              <h2>Recent Services</h2>
+              <div id="service-list" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contracts" class="tab-page">
+          <div class="grid two">
+            <form id="contract-form" class="panel">
+              <h2>Contract Upload</h2>
+              <label>Customer<select name="customer_id" required></select></label>
+              <label>Contract<input name="file" type="file" required></label>
+              <button type="submit">Upload Contract</button>
+            </form>
+            <div class="panel">
+              <h2>Stored Contracts</h2>
+              <div id="contract-list" class="list"></div>
+            </div>
+          </div>
+          <div id="contract-preview-panel" class="panel preview-panel hidden">
+            <div class="form-head">
+              <h2 id="contract-preview-title">Contract Preview</h2>
+              <button id="contract-preview-close" class="secondary" type="button">Close</button>
+            </div>
+            <iframe id="contract-preview" title="Contract Preview"></iframe>
+          </div>
+        </section>
+
+        <section id="financials" class="tab-page">
+          <div class="grid two">
+            <form id="financial-form" class="panel">
+              <h2>Financial Entry</h2>
+              <label>Type
+                <select name="entry_type" required>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </label>
+              <label>Customer<select name="customer_id"></select></label>
+              <label>Category<input name="category" maxlength="50" required></label>
+              <label>Service Type<input name="service_type" maxlength="50" required></label>
+              <label>Amount<input name="amount" type="number" min="0.01" max="100000" step="0.01" required></label>
+              <label>Date<input name="entry_date" type="date" required></label>
+              <label>Notes<textarea name="notes" maxlength="1000"></textarea></label>
+              <button type="submit">Add Entry</button>
+            </form>
+            <div class="panel">
+              <h2>Monthly Summary</h2>
+              <form id="summary-form" class="summary-controls">
+                <input name="year" type="number" min="2000" max="2100" required>
+                <input name="month" type="number" min="1" max="12" required>
+                <button type="submit">Run</button>
+              </form>
+              <div id="summary" class="summary"></div>
+              <h2>Entries</h2>
+              <div id="financial-list" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <p id="app-message" class="message" role="status"></p>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

@@ -19,24 +19,24 @@ A secure client/server web application for small, service-oriented businesses. T
 
 ## Project Structure
 
-```
+```text
 cleanops_secure_webapp/
-├── app/
-│   ├── main.py
-│   ├── database.py
-│   ├── models.py
-│   ├── schemas.py
-│   ├── security.py
-│   ├── seed.py
-│   ├── templates/
-│   │   └── index.html
-│   └── static/
-│       ├── app.js
-│       └── styles.css
-├── uploads/
-│   └── contracts/
-├── requirements.txt
-└── README.md
+|-- app/
+|   |-- main.py
+|   |-- database.py
+|   |-- security.py
+|   |-- validation.py
+|   |-- templates/
+|   |   `-- index.html
+|   `-- static/
+|       |-- app.js
+|       `-- styles.css
+|-- tests/
+|   `-- test_app.py
+|-- uploads/
+|   `-- contracts/
+|-- requirements.txt
+`-- README.md
 ```
 
 ## Setup
@@ -60,23 +60,38 @@ uvicorn app.main:app --reload
 http://127.0.0.1:8000
 ```
 
-## First Login
+## First Run Owner Setup
 
-On first run, the app auto-creates an admin account:
+The app does **not** ship with a hardcoded username or password. On first launch, the login screen becomes an owner setup screen. Create the owner account with a password that includes:
 
-- **Username:** `admin`
-- **Password:** `ChangeMe123!`
+- 8-128 characters
+- uppercase and lowercase letters
+- a number
+- a special character from `@$!%*?&`
 
-Change the password immediately in a real deployment.
+After setup, the owner account is stored in SQLite with a bcrypt password hash.
 
 ## Security Notes
 
 - Passwords are stored with **bcrypt** hashes.
 - Sessions use a random opaque token stored in an **HTTP-only cookie**.
 - All protected routes require authentication.
-- Contract uploads are sanitized for filename collisions.
+- SQL queries use parameterized SQLite statements.
+- Browser output uses DOM text APIs for user-provided values.
+- Contract uploads are size-limited, extension-limited, checksummed, and stored outside the static web path.
+- The app avoids shell command execution APIs.
 - In production, set `COOKIE_SECURE = True` and place the app behind **HTTPS**.
 - Store the SQLite file and upload directory with restricted OS permissions.
+- Back up the SQLite database and contract upload directory regularly.
+- Run the server under a process manager that restarts it after crashes.
+
+## Tests
+
+Run the focused security and workflow tests:
+
+```bash
+pytest
+```
 
 ## Future Enhancements
 
